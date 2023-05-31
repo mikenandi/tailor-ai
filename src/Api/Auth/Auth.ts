@@ -12,33 +12,30 @@ interface ISignin {
     password: string;
 }
 
-const Requests = {
-    signIn: async function (data: ISignin) {
-        try {
-            let response = await axios({
-                method: "POST",
-                url: "/auth/signin",
-                data: data,
-            });
+export const signin = async (data: ISignin) => {
+    try {
+        let response = await axios({
+            method: "POST",
+            url: "/auth/signin",
+            data: data,
+        });
 
-            return response.data;
-        } catch (error: any) {
-            return error.response.data;
-        }
-    },
-    signUp: async function (data: ISignup) {
-        try {
-            let response = await axios({
-                method: "POST",
-                url: "/auth/signup",
-                data: data,
-            });
-
-            return response.data;
-        } catch (error: any) {
-            return error.response.data;
-        }
-    },
+        return response.data;
+    } catch (error: any) {
+        return error.response.data;
+    }
 };
 
-export const { signIn, signUp } = Requests;
+export const signup = async (data: ISignup) => {
+    try {
+        let response = await axios({
+            method: "POST",
+            url: "/auth/signup",
+            data: data,
+        });
+
+        return response.data;
+    } catch (error: any) {
+        return error.response.data;
+    }
+};

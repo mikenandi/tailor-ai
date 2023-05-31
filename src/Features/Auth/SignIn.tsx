@@ -1,10 +1,19 @@
 import React from "react";
 import { StyleSheet, View, Modal } from "react-native";
-import { Body, HeadingS } from "../../Components/Typography";
+import {
+    Body,
+    HeadingS,
+} from "../../Components/Typography";
 import AuthScreen from "../../Layouts/AuthScreen";
-import { InputText, InputPassword } from "../../Components/Inputs";
-import { ButtonL, TextButton } from "../../Components/Buttons";
-import { signIn } from "../../Api/Auth/Auth";
+import {
+    InputText,
+    InputPassword,
+} from "../../Components/Inputs";
+import {
+    ButtonL,
+    TextButton,
+} from "../../Components/Buttons";
+import { signin } from "../../Api/Auth/Auth";
 import { ErrorMsg } from "../../Components/ErrorMsg";
 import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,6 +21,8 @@ import {
     logInReducer,
     passwordReducer,
     emailReducer,
+    testlogin,
+    cleanAuthReducer,
 } from "../../Redux/Features/Auth/AuthSlice";
 import * as SecureStore from "expo-secure-store";
 import Loader from "../../Components/Loader";
@@ -19,6 +30,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { TextInput } from "@react-native-material/core";
 import Color from "../../Components/Color";
 import { Ionicons } from "@expo/vector-icons";
+import { isEmail } from "../../Helpers/EmailCheck";
 
 interface SignInProps {
     navigation: NavigationProp<any>;
@@ -29,11 +41,14 @@ const SignIn: React.FC<SignInProps> = (props) => {
 
     // Seting states
     const [isLoading, setIsLoading] = React.useState(false);
-    const [passwordVisible, setPasswordVisible] = React.useState<boolean>(true);
+    const [passwordVisible, setPasswordVisible] =
+        React.useState<boolean>(true);
 
-    const { email, password } = useSelector((state: any) => {
-        return state.auth;
-    });
+    const { email, password } = useSelector(
+        (state: any) => {
+            return state.auth;
+        }
+    );
 
     const handlePasswordVisible = (): void => {
         setPasswordVisible(!passwordVisible);
@@ -59,24 +74,39 @@ const SignIn: React.FC<SignInProps> = (props) => {
             return;
         }
 
+        if (!isEmail(email)) {
+            dispatch(errorMsg("invalid email"));
+
+            return;
+        }
+
         if (password.length < 6) {
-            dispatch(errorMsg("password must have 6 charracters or more"));
+            dispatch(
+                errorMsg(
+                    "password must have 6 charracters or more"
+                )
+            );
 
             return;
         }
 
         setIsLoading(true);
 
-        let response = await signIn({ email, password });
+        let response = await signin({ email, password });
 
         if (response.access_token) {
-            await SecureStore.setItemAsync("authToken", response.access_token);
+            await SecureStore.setItemAsync(
+                "authToken",
+                response.access_token
+            );
 
             dispatch(
                 logInReducer({
                     authToken: response.access_token,
                 })
             );
+
+            dispatch(cleanAuthReducer());
 
             setIsLoading(false);
 
@@ -129,23 +159,34 @@ const SignIn: React.FC<SignInProps> = (props) => {
                                 name="eye-outline"
                                 size={24}
                                 color="black"
-                                onPress={handlePasswordVisible}
+                                onPress={
+                                    handlePasswordVisible
+                                }
                             />
                         ) : (
                             <Ionicons
                                 name="eye-off-outline"
                                 size={24}
                                 color="black"
-                                onPress={handlePasswordVisible}
+                                onPress={
+                                    handlePasswordVisible
+                                }
                             />
                         )
                     }
                 />
 
-                <ButtonL action="sign in" onPress={handleSignIn} />
+                <ButtonL
+                    action="sign in"
+                    onPress={handleSignIn}
+                />
 
-                <View style={styles.bottomQuestionContainer}>
-                    <Body style={styles.questionText}>Don't have acount?</Body>
+                <View
+                    style={styles.bottomQuestionContainer}
+                >
+                    <Body style={styles.questionText}>
+                        Don't have acount?
+                    </Body>
 
                     <TextButton
                         action="Register"
@@ -155,7 +196,11 @@ const SignIn: React.FC<SignInProps> = (props) => {
                 </View>
             </AuthScreen>
 
-            <Modal animationType="fade" visible={isLoading} transparent={false}>
+            <Modal
+                animationType="fade"
+                visible={isLoading}
+                transparent={false}
+            >
                 <Loader />
             </Modal>
         </>

@@ -2,7 +2,6 @@ import * as React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Screen from "../Layouts/Screen";
 import AppTabs from "./AppTabs";
 import SignIn from "../Features/Auth/SignIn";
 import SignUp from "../Features/Auth/SignUp";
@@ -26,15 +25,18 @@ Notifications.setNotificationHandler({
 const Auth: React.FC = () => {
     const dispatch = useDispatch();
 
-    const [isLoading, setIsLoading] = React.useState<boolean>(true);
+    const [isLoading, setIsLoading] =
+        React.useState<boolean>(true);
 
     const [fontsLoaded] = useFonts({
         poppins: require("../../assets/fonts/barlow-condensed/BarlowCondensed-Medium.ttf"),
     });
 
-    const isLogedOut = useSelector((state: any): boolean => {
-        return state.auth.isLogedOut;
-    });
+    const isLogedOut = useSelector(
+        (state: any): boolean => {
+            return state.auth.isLogedOut;
+        }
+    );
 
     // Notifications
     // React.useEffect(() => {
@@ -53,9 +55,13 @@ const Auth: React.FC = () => {
     React.useEffect(() => {
         (async () => {
             try {
-                let savedToken = await SecureStore.getItemAsync("authToken");
+                let savedToken =
+                    await SecureStore.getItemAsync(
+                        "authToken"
+                    );
 
-                let savedUserId: any = await AsyncStorage.getItem("userId");
+                let savedUserId: any =
+                    await AsyncStorage.getItem("userId");
 
                 if (!!savedToken) {
                     dispatch(
@@ -92,7 +98,7 @@ const Auth: React.FC = () => {
 
     return (
         <Stack.Navigator initialRouteName="Welcome">
-            {false ? (
+            {isLogedOut ? (
                 <>
                     <Stack.Screen
                         name="Welcome"

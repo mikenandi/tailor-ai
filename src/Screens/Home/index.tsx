@@ -11,34 +11,35 @@ import * as SecureStorage from "expo-secure-store";
 import { logOutReducer } from "../../Redux/Features/Auth/AuthSlice";
 import { scanCustomerVisibleReducer } from "../../Redux/Features/Customer/CustomerModalSlice";
 import { ScanCamera } from "./ScanCamera";
-import {
-    Body,
-    HeadingS,
-} from "../../Components/Typography";
+import { Body, HeadingS } from "../../Components/Typography";
+import { getUserProfile } from "../../Api/Services/Backend/Profile";
 
 const Home: React.FC = () => {
     const dispatch = useDispatch();
 
-    const [isLoading, setIsLoading] =
-        React.useState<boolean>(false);
-    const { authToken, name } = useSelector(
-        (state: RootState) => {
-            return state.auth;
-        }
-    );
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const visible: boolean = useSelector(
-        (state: RootState) => {
-            return state.scanCustomerModal
-                .scanCustomerVisible;
-        }
-    );
+    const { authToken, name } = useSelector((state: RootState) => {
+        return state.auth;
+    });
+
+    const fetchProfile = async (authToken: string) => {
+        let user = await getUserProfile(authToken);
+
+        console.log(user);
+
+        return;
+    };
+
+    const visible: boolean = useSelector((state: RootState) => {
+        return state.scanCustomerModal.scanCustomerVisible;
+    });
 
     const handleScanVisible = (): void => {
         dispatch(scanCustomerVisibleReducer());
     };
 
-    function displayGreeting(): string {
+    const displayGreeting = (): string => {
         const currentTime = new Date();
         const currentHour = currentTime.getHours();
 
@@ -53,14 +54,12 @@ const Home: React.FC = () => {
         }
 
         return greeting;
-    }
+    };
 
     // Call the function to display the greeting
     displayGreeting();
 
-    const getFirstname = (
-        name: string
-    ): string | undefined => {
+    const getFirstname = (name: string): string | undefined => {
         return name.trim().split(" ")[0];
     };
 
@@ -70,7 +69,9 @@ const Home: React.FC = () => {
         dispatch(logOutReducer());
     };
 
-    React.useEffect(() => {}, []);
+    React.useEffect(() => {
+        fetchProfile(authToken);
+    }, []);
 
     // if (isLoading) {
     // 	return (
@@ -83,9 +84,7 @@ const Home: React.FC = () => {
     return (
         <>
             <Screen>
-                <Topbar
-                    title={`${displayGreeting()} , Joe`}
-                />
+                <Topbar title={`${displayGreeting()} , Joe`} />
 
                 <View style={styles.container}>
                     <View style={styles.detailContainer}>
@@ -126,11 +125,7 @@ const Home: React.FC = () => {
                 </View>
 
                 <FAB onPress={handleScanVisible}>
-                    <AntDesign
-                        name="scan1"
-                        size={30}
-                        color="black"
-                    />
+                    <AntDesign name="scan1" size={30} color="black" />
                 </FAB>
             </Screen>
 
