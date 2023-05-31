@@ -42,7 +42,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
         return state.profileModal.privacyProfileVisible;
     });
 
-    const { name, email } = useSelector((state: RootState) => {
+    const { name, email, phoneNumber } = useSelector((state: RootState) => {
         return state.auth;
     });
 
@@ -82,7 +82,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                             </View>
                             <View style={styles.plate}>
                                 <HeadingS style={styles.titleText}>
-                                    Michael Nandi
+                                    {name}
                                 </HeadingS>
                             </View>
                             <TouchableOpacity
@@ -100,7 +100,10 @@ const Profile: React.FC<ProfileProps> = (props) => {
                             </TouchableOpacity>
                         </View>
 
-                        <ProfileDetail label="Name" value={"Michael Nandi"}>
+                        <ProfileDetail
+                            label="Name"
+                            value={name ? name : "Enter tailors name"}
+                        >
                             <Ionicons
                                 name="person-outline"
                                 size={30}
@@ -108,10 +111,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                             />
                         </ProfileDetail>
 
-                        <ProfileDetail
-                            label="Email"
-                            value={"michalnandi05@gmail.com"}
-                        >
+                        <ProfileDetail label="Email" value={email}>
                             <MaterialCommunityIcons
                                 name="email-outline"
                                 size={30}
@@ -119,7 +119,10 @@ const Profile: React.FC<ProfileProps> = (props) => {
                             />
                         </ProfileDetail>
 
-                        <ProfileDetail label="Mobile" value={"0748233434"}>
+                        <ProfileDetail
+                            label="Mobile"
+                            value={phoneNumber ? phoneNumber : "Enter Mobile"}
+                        >
                             <MaterialCommunityIcons
                                 name="phone-outline"
                                 size={30}

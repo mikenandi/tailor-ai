@@ -9,21 +9,26 @@ import {
     emailReducer,
     nameReducer,
     passwordReducer,
+    phoneNumberReducer,
 } from "../../Redux/Features/Auth/AuthSlice";
 import { InputText } from "../../Components/Inputs";
 import { updateProfile } from "../../Api/Services/Backend/Profile";
 import { updateProfileVisibleReducer } from "../../Redux/Features/Profile/ProfileModal";
 import Loader from "../../Components/Loader";
 import { TextInput } from "@react-native-material/core";
+import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
+import { ErrorMsg } from "../../Components/ErrorMsg";
 
 const EditProfile: React.FC = () => {
     const dispatch = useDispatch();
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const { name, email, authToken } = useSelector((state: RootState) => {
-        return state.auth;
-    });
+    const { name, email, authToken, phoneNumber } = useSelector(
+        (state: RootState) => {
+            return state.auth;
+        }
+    );
 
     const handleBack = (): void => {
         dispatch(updateProfileVisibleReducer());
@@ -31,13 +36,25 @@ const EditProfile: React.FC = () => {
 
     const handleEdit = async (): Promise<void> => {
         setIsLoading(true);
+
+        if (phoneNumber.length !== 10) {
+            setIsLoading(false);
+
+            dispatch(errorMsg("Invalid phone number"));
+
+            return;
+        }
+
         let response = await updateProfile(
             {
                 name,
                 email,
+                phoneNumber,
             },
             authToken
         );
+
+        console.log(response);
 
         setIsLoading(false);
 
@@ -52,7 +69,9 @@ const EditProfile: React.FC = () => {
         dispatch(nameReducer(name));
     };
 
-    const handlePhoneNumber = (phonenumber: string): void => {};
+    const handlePhoneNumber = (phonenumber: string): void => {
+        dispatch(phoneNumberReducer(phonenumber));
+    };
 
     const handleEmail = (email: string): void => {
         dispatch(emailReducer(email));
@@ -84,6 +103,8 @@ const EditProfile: React.FC = () => {
                         label="Mobile"
                         variant="standard"
                         style={styles.textInput}
+                        value={phoneNumber}
+                        keyboardType="number-pad"
                         onChangeText={handlePhoneNumber}
                     />
 
@@ -95,7 +116,7 @@ const EditProfile: React.FC = () => {
                         onChangeText={handleEmail}
                     />
 
-                    <ButtonL action="UPDATE" onPress={handleEdit} />
+                    <ButtonL action="Save" onPress={handleEdit} />
                 </ScrollView>
             </ModalScreen>
         </>

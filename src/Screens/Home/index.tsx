@@ -8,7 +8,10 @@ import { FAB } from "../../Components/FAB";
 import Topbar from "../../Layouts/Topbar";
 import { RootState } from "../../Redux";
 import * as SecureStorage from "expo-secure-store";
-import { logOutReducer } from "../../Redux/Features/Auth/AuthSlice";
+import {
+    logOutReducer,
+    userProfileReducer,
+} from "../../Redux/Features/Auth/AuthSlice";
 import { scanCustomerVisibleReducer } from "../../Redux/Features/Customer/CustomerModalSlice";
 import { ScanCamera } from "./ScanCamera";
 import { Body, HeadingS } from "../../Components/Typography";
@@ -24,9 +27,9 @@ const Home: React.FC = () => {
     });
 
     const fetchProfile = async (authToken: string) => {
-        let user = await getUserProfile(authToken);
+        let { name, email, phoneNumber } = await getUserProfile(authToken);
 
-        console.log(user);
+        dispatch(userProfileReducer({ name, email, phoneNumber }));
 
         return;
     };
@@ -84,7 +87,7 @@ const Home: React.FC = () => {
     return (
         <>
             <Screen>
-                <Topbar title={`${displayGreeting()} , Joe`} />
+                <Topbar title={`${displayGreeting()} , ${name}`} />
 
                 <View style={styles.container}>
                     <View style={styles.detailContainer}>

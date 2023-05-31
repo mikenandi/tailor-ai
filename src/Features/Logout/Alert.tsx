@@ -1,15 +1,12 @@
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
 import Color from "../../Components/Color";
-import {
-    HeadingS,
-    Body,
-    BodyS,
-} from "../../Components/Typography";
+import { HeadingS, Body, BodyS } from "../../Components/Typography";
 import { useDispatch } from "react-redux";
 import { Card } from "../../Components/Card";
 import { TextButton } from "../../Components/Buttons";
 import {
+    cleanAuthReducer,
     logOutReducer,
     testlogin,
 } from "../../Redux/Features/Auth/AuthSlice";
@@ -22,16 +19,18 @@ const LogoutAlert: React.FC = () => {
 
     /* Loging out */
     const handleConfirm = async () => {
-        // /* Delete token and userId */
-        // await SecureStore.deleteItemAsync("authToken");
+        /* Delete token and userId */
+        await SecureStore.deleteItemAsync("authToken");
 
-        // dispatch(logOutReducer());
+        dispatch(cleanAuthReducer());
 
-        // dispatch(logoutVisibleReducer());
+        dispatch(logOutReducer());
 
-        // return;
+        dispatch(logoutVisibleReducer());
 
-        dispatch(testlogin());
+        return;
+
+        // dispatch(testlogin());
     };
 
     const handleCancel = () => {
@@ -43,9 +42,7 @@ const LogoutAlert: React.FC = () => {
     return (
         <>
             <Card style={styles.container}>
-                <HeadingS style={styles.titleText}>
-                    Sign out
-                </HeadingS>
+                <HeadingS style={styles.titleText}>Sign out</HeadingS>
 
                 <Body style={styles.bodyText}>
                     Are you sure want to sign out ?

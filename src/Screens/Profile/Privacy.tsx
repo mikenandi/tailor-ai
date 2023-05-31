@@ -8,8 +8,8 @@ import { RootState } from "../../Redux";
 import {
     logOutReducer,
     passwordReducer,
+    oldPasswordReducer,
 } from "../../Redux/Features/Auth/AuthSlice";
-import { InputPassword } from "../../Components/Inputs";
 import { deleteUser, updateProfile } from "../../Api/Services/Backend/Profile";
 import { privacyProfileVisibleReducer } from "../../Redux/Features/Profile/ProfileModal";
 import Loader from "../../Components/Loader";
@@ -24,9 +24,11 @@ const Privacy: React.FC = () => {
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const { password, authToken } = useSelector((state: RootState) => {
-        return state.auth;
-    });
+    const { password, authToken, oldPassword } = useSelector(
+        (state: RootState) => {
+            return state.auth;
+        }
+    );
 
     const handleBack = (): void => {
         dispatch(passwordReducer(""));
@@ -34,10 +36,11 @@ const Privacy: React.FC = () => {
     };
 
     const handleEdit = async (): Promise<void> => {
-        if (password.length < 6) {
+        if (password !== undefined && password.length < 6) {
             dispatch(
                 errorMsg("password length should have greater than 6 chars")
             );
+
             return;
         }
 
@@ -46,6 +49,7 @@ const Privacy: React.FC = () => {
         let response = await updateProfile(
             {
                 password,
+                oldPassword,
             },
             authToken
         );
@@ -53,6 +57,10 @@ const Privacy: React.FC = () => {
         setIsLoading(false);
 
         handleBack();
+    };
+
+    const handleOldPassword = (oldPassword: string): void => {
+        dispatch(oldPasswordReducer(oldPassword));
     };
 
     const handlePassword = (password: string): void => {
@@ -82,7 +90,17 @@ const Privacy: React.FC = () => {
 
                 <ScrollView contentContainerStyle={styles.contentContainer}>
                     <TextInput
-                        label="Change Password"
+                        label="Old Password"
+                        variant="standard"
+                        style={styles.passwordInput}
+                        value={oldPassword}
+                        onChangeText={handleOldPassword}
+                        color={Color.primary}
+                        secureTextEntry={true}
+                    />
+
+                    <TextInput
+                        label="New Password"
                         variant="standard"
                         style={styles.passwordInput}
                         value={password}
