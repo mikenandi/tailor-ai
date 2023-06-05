@@ -1,14 +1,8 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import {
-    Body,
-    HeadingS,
-} from "../../Components/Typography";
+import { Body, HeadingS } from "../../Components/Typography";
 import AuthScreen from "../../Layouts/AuthScreen";
-import {
-    ButtonL,
-    TextButton,
-} from "../../Components/Buttons";
+import { ButtonL, TextButton } from "../../Components/Buttons";
 import { useDispatch } from "react-redux";
 import {
     cleanAuthReducer,
@@ -43,10 +37,8 @@ interface ISignup {
 
 const SignUp: React.FC<SignUpProps> = (props) => {
     const dispatch = useDispatch();
-    const [isLoading, setIsLoading] =
-        React.useState<boolean>(false);
-    const [passwordVisible, setPasswordVisible] =
-        React.useState<boolean>(true);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [passwordVisible, setPasswordVisible] = React.useState<boolean>(true);
 
     const { name, email, password }: ISignup = useSelector(
         (state: RootState) => {
@@ -55,6 +47,8 @@ const SignUp: React.FC<SignUpProps> = (props) => {
     );
 
     const handleSignIn = (): void => {
+        dispatch(cleanAuthReducer());
+
         props.navigation.navigate("SignIn");
     };
 
@@ -90,9 +84,7 @@ const SignUp: React.FC<SignUpProps> = (props) => {
 
             if (password.length < 6) {
                 dispatch(
-                    errorMsg(
-                        "password should have at least 6 charracters"
-                    )
+                    errorMsg("password should have at least 6 charracters")
                 );
 
                 return;
@@ -100,12 +92,11 @@ const SignUp: React.FC<SignUpProps> = (props) => {
 
             setIsLoading(true);
 
-            let response: { access_token: string } =
-                await signup({
-                    name,
-                    email,
-                    password,
-                });
+            let response: { access_token: string } = await signup({
+                name,
+                email,
+                password,
+            });
 
             if (response.access_token) {
                 await SecureStore.setItemAsync(
@@ -179,38 +170,24 @@ const SignUp: React.FC<SignUpProps> = (props) => {
                                 name="eye-outline"
                                 size={24}
                                 color="black"
-                                onPress={
-                                    handlePasswordVisible
-                                }
+                                onPress={handlePasswordVisible}
                             />
                         ) : (
                             <Ionicons
                                 name="eye-off-outline"
                                 size={24}
                                 color="black"
-                                onPress={
-                                    handlePasswordVisible
-                                }
+                                onPress={handlePasswordVisible}
                             />
                         )
                     }
                 />
 
-                <ButtonL
-                    action="sign up"
-                    onPress={handleSignup}
-                />
+                <ButtonL action="sign up" onPress={handleSignup} />
 
-                <View
-                    style={styles.bottomQuestionContainer}
-                >
-                    <Body style={styles.questionText}>
-                        Have account?
-                    </Body>
-                    <TextButton
-                        action="sign in"
-                        onPress={handleSignIn}
-                    />
+                <View style={styles.bottomQuestionContainer}>
+                    <Body style={styles.questionText}>Have account?</Body>
+                    <TextButton action="sign in" onPress={handleSignIn} />
                 </View>
             </AuthScreen>
         </>

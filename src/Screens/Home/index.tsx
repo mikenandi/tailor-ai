@@ -87,7 +87,9 @@ const Home: React.FC = () => {
     return (
         <>
             <Screen>
-                <Topbar title={`${displayGreeting()} , ${name}`} />
+                <Topbar
+                    title={`${displayGreeting()} , ${getFirstname(name)}`}
+                />
 
                 <View style={styles.container}>
                     <View style={styles.detailContainer}>

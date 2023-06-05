@@ -54,8 +54,6 @@ const EditProfile: React.FC = () => {
             authToken
         );
 
-        console.log(response);
-
         setIsLoading(false);
 
         handleBack();
