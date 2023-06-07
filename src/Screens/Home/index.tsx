@@ -3,7 +3,7 @@ import { StyleSheet, Modal, View } from "react-native";
 import Screen from "../../Layouts/Screen";
 import Color from "../../Components/Color";
 import { useDispatch, useSelector } from "react-redux";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { FAB } from "../../Components/FAB";
 import Topbar from "../../Layouts/Topbar";
 import { RootState } from "../../Redux";
@@ -27,7 +27,15 @@ const Home: React.FC = () => {
     });
 
     const fetchProfile = async (authToken: string) => {
-        let { name, email, phoneNumber } = await getUserProfile(authToken);
+        let response = await getUserProfile(authToken);
+
+        if (response.statusCode === 401) {
+            dispatch(logOutReducer());
+
+            return;
+        }
+
+        let { name, email, phoneNumber } = response;
 
         dispatch(userProfileReducer({ name, email, phoneNumber }));
 
@@ -93,38 +101,66 @@ const Home: React.FC = () => {
 
                 <View style={styles.container}>
                     <View style={styles.detailContainer}>
-                        <Ionicons
-                            name="md-body-outline"
-                            size={36}
-                            color={Color.primary}
-                            style={styles.iconStyle}
-                        />
                         <View>
                             <HeadingS style={styles.name}>
                                 Mussa Selemani
                             </HeadingS>
 
-                            <Body style={styles.detailText}>
-                                Chest : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Waist : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Hips : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Shoulder : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Neck : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Arm length : 12 INCH
-                            </Body>
-                            <Body style={styles.detailText}>
-                                Bicep : 12 INCH
-                            </Body>
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Chest measurement
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Waist measurement
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Hips measurement
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Shoulder measurement
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Neck measurement
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Arm length
+                                </Body>
+
+                                <Body style={styles.detail}>12 INCH</Body>
+                            </View>
+
+                            <View style={styles.dataContainer}>
+                                <Body style={styles.detailText}>
+                                    Becep measurement
+                                </Body>
+
+                                <Body style={styles.detailText}>12 INCH</Body>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -182,20 +218,32 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     detailContainer: {
-        flexDirection: "row",
+        // flexDirection: "row",
         marginHorizontal: 0,
-        backgroundColor: Color.lightgray,
+        // backgroundColor: Color.lightgray,
         borderRadius: 10,
         padding: 10,
     },
     name: {
-        fontWeight: "bold",
+        // fontWeight: "bold",
+        borderBottomWidth: 2,
+        paddingBottom: 2,
+        borderBottomColor: Color.primary,
+        marginBottom: 8,
     },
     iconStyle: {
         marginRight: 10,
     },
     detailText: {
-        fontSize: 18,
+        // fontSize: 18,
+    },
+    dataContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        padding: 6,
+    },
+    detail: {
+        fontWeight: "bold",
     },
 });
 

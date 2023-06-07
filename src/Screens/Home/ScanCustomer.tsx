@@ -20,16 +20,12 @@ import Color from "../../Components/Color";
 const ScanCustomer: React.FC = () => {
     const dispatch = useDispatch();
 
-    const [isLoading, setIsLoading] =
-        React.useState<boolean>(false);
-    const [selectedGender, setSelectedGender] =
-        React.useState<string>("");
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [selectedGender, setSelectedGender] = React.useState<string>("");
 
-    const { name, email, authToken } = useSelector(
-        (state: RootState) => {
-            return state.auth;
-        }
-    );
+    const { name, email, authToken } = useSelector((state: RootState) => {
+        return state.auth;
+    });
 
     const handleGenderChange = (gender: string): void => {
         setSelectedGender(gender);
@@ -62,9 +58,7 @@ const ScanCustomer: React.FC = () => {
         dispatch(nameReducer(name));
     };
 
-    const handlePhoneNumber = (
-        phonenumber: string
-    ): void => {};
+    const handlePhoneNumber = (phonenumber: string): void => {};
 
     const handleEmail = (email: string): void => {
         dispatch(emailReducer(email));
@@ -86,11 +80,7 @@ const ScanCustomer: React.FC = () => {
                     handleBack={handleBack}
                 />
 
-                <ScrollView
-                    contentContainerStyle={
-                        styles.contentContainer
-                    }
-                >
+                <ScrollView contentContainerStyle={styles.contentContainer}>
                     <TextInput
                         label="Customer Name"
                         variant="standard"
@@ -111,15 +101,10 @@ const ScanCustomer: React.FC = () => {
 
                         <View>
                             <RadioButton.Group
-                                onValueChange={
-                                    handleGenderChange
-                                }
+                                onValueChange={handleGenderChange}
                                 value={selectedGender}
                             >
-                                <RadioButton.Item
-                                    label="Male"
-                                    value="male"
-                                />
+                                <RadioButton.Item label="Male" value="male" />
                                 <RadioButton.Item
                                     label="Female"
                                     value="female"

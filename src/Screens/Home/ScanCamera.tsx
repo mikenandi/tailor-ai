@@ -1,5 +1,5 @@
-import { Camera, CameraType } from "expo-camera";
-import { useState } from "react";
+import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
+import { useRef, useState } from "react";
 import {
     Button,
     Modal,
@@ -16,19 +16,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { ModalNavBack } from "../../Components/ModalNavBack";
 import { ScanCustomer } from "./ScanCustomer";
 import { RootState } from "../../Redux";
+import * as MediaLibrary from "expo-media-library";
+import { shareAsync } from "expo-sharing";
+import { Image } from "react-native";
+import Color from "../../Components/Color";
 
 export const ScanCamera: React.FC = () => {
+    let camera: Camera;
     const dispatch = useDispatch();
     const [type, setType] = useState(CameraType.back);
-    const [permission, requestPermission] =
-        Camera.useCameraPermissions();
+    const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [photo, setPhoto] = useState<CameraCapturedPicture | undefined>();
+    const cameraRef = useRef<Camera>(null);
 
-    const visible: boolean = useSelector(
-        (state: RootState) => {
-            return state.scanCustomerModal
-                .customerDetailsVisible;
-        }
-    );
+    const visible: boolean = useSelector((state: RootState) => {
+        return state.scanCustomerModal.customerDetailsVisible;
+    });
 
     const handleBack = (): void => {
         dispatch(scanCustomerVisibleReducer());
@@ -39,18 +42,59 @@ export const ScanCamera: React.FC = () => {
         return <View />;
     }
 
+    let takePic = async () => {
+        let options = {
+            quality: 1,
+            base64: true,
+            exif: false,
+        };
+
+        // let newPhoto: any = await cameraRef.current?.takePictureAsync(options);
+        const newPhoto: any = await cameraRef.current?.takePictureAsync(
+            options
+        );
+
+        setPhoto(newPhoto);
+    };
+
+    // console.log(photo?.uri);
+
+    if (photo && "uri" in photo) {
+        let sharePic = () => {
+            shareAsync(photo?.uri).then(() => {
+                setPhoto(undefined);
+            });
+        };
+
+        let savePhoto = () => {
+            MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
+                setPhoto(undefined);
+            });
+        };
+
+        return (
+            <View style={styles.container}>
+                <Image
+                    style={styles.preview}
+                    source={{ uri: "data:image/jpg;base64," + photo.base64 }}
+                />
+                <Button title="Share" onPress={sharePic} />
+
+                <Button title="Save" onPress={savePhoto} />
+
+                <Button title="Discard" onPress={() => setPhoto(undefined)} />
+            </View>
+        );
+    }
+
     if (!permission.granted) {
         // Camera permissions are not granted yet
         return (
             <View style={styles.container}>
                 <Text style={{ textAlign: "center" }}>
-                    We need your permission to show the
-                    camera
+                    We need your permission to show the camera
                 </Text>
-                <Button
-                    onPress={requestPermission}
-                    title="grant permission"
-                />
+                <Button onPress={requestPermission} title="grant permission" />
             </View>
         );
     }
@@ -72,15 +116,18 @@ export const ScanCamera: React.FC = () => {
                     title="Customer measurements"
                     handleBack={handleBack}
                 />
-                <Camera style={styles.camera} type={type}>
+                <Camera
+                    style={styles.camera}
+                    type={type}
+                    ratio="16:9"
+                    ref={cameraRef}
+                >
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.button}
-                            onPress={toggleCameraType}
+                            onPress={takePic}
                         >
-                            <Text style={styles.text}>
-                                Get measurements
-                            </Text>
+                            <Text style={styles.text}>Scan measurement</Text>
                         </TouchableOpacity>
                     </View>
                 </Camera>
@@ -111,10 +158,24 @@ const styles = StyleSheet.create({
         flex: 1,
         alignSelf: "flex-end",
         alignItems: "center",
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        borderColor: Color.white,
+        borderWidth: 3,
+        justifyContent: "center",
     },
     text: {
         fontSize: 16,
         fontWeight: "bold",
         color: "white",
+    },
+    buttonContainerB: {
+        backgroundColor: "#fff",
+        alignSelf: "flex-end",
+    },
+    preview: {
+        alignSelf: "stretch",
+        flex: 1,
     },
 });
