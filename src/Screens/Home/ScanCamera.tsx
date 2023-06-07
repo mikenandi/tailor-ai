@@ -67,6 +67,8 @@ export const ScanCamera: React.FC = () => {
         };
 
         let savePhoto = () => {
+            dispatch(customerDetailsVisibleReducer());
+
             MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
                 setPhoto(undefined);
             });
