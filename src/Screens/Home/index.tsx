@@ -16,6 +16,7 @@ import { scanCustomerVisibleReducer } from "../../Redux/Features/Customer/Custom
 import { ScanCamera } from "./ScanCamera";
 import { Body, HeadingS } from "../../Components/Typography";
 import { getUserProfile } from "../../Api/Services/Backend/Profile";
+import { Customer } from "./Customer";
 
 const Home: React.FC = () => {
     const dispatch = useDispatch();
@@ -100,69 +101,7 @@ const Home: React.FC = () => {
                 />
 
                 <View style={styles.container}>
-                    <View style={styles.detailContainer}>
-                        <View>
-                            <HeadingS style={styles.name}>
-                                Mussa Selemani
-                            </HeadingS>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Chest measurement
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Waist measurement
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Hips measurement
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Shoulder measurement
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Neck measurement
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Arm length
-                                </Body>
-
-                                <Body style={styles.detail}>12 INCH</Body>
-                            </View>
-
-                            <View style={styles.dataContainer}>
-                                <Body style={styles.detailText}>
-                                    Becep measurement
-                                </Body>
-
-                                <Body style={styles.detailText}>12 INCH</Body>
-                            </View>
-                        </View>
-                    </View>
+                    <Customer />
                 </View>
 
                 <FAB onPress={handleScanVisible}>

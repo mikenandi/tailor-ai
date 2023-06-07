@@ -4,7 +4,7 @@ import { AntDesign, Entypo, Ionicons } from "@expo/vector-icons";
 import Home from "../Screens/Home";
 import Profile from "../Screens/Profile";
 import Color from "../Components/Color";
-import Maps from "../Screens/Maps";
+
 
 const Tab = createBottomTabNavigator();
 
