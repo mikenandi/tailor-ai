@@ -1,13 +1,6 @@
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
-import { useRef, useState } from "react";
-import {
-    Button,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
     customerDetailsVisibleReducer,
     scanCustomerVisibleReducer,
@@ -20,11 +13,14 @@ import * as MediaLibrary from "expo-media-library";
 import { shareAsync } from "expo-sharing";
 import { Image } from "react-native";
 import Color from "../../Components/Color";
+import { Button } from "react-native-paper";
 
 export const ScanCamera: React.FC = () => {
     let camera: Camera;
     const dispatch = useDispatch();
     const [type, setType] = useState(CameraType.back);
+    const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
+        useState<boolean>(false);
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [photo, setPhoto] = useState<CameraCapturedPicture | undefined>();
     const cameraRef = useRef<Camera>(null);
@@ -66,7 +62,14 @@ export const ScanCamera: React.FC = () => {
             });
         };
 
-        let savePhoto = () => {
+        const savePhoto = async () => {
+            const mediaLibraryPermission =
+                await MediaLibrary.requestPermissionsAsync();
+
+            setHasMediaLibraryPermission(
+                mediaLibraryPermission.status === "granted"
+            );
+
             dispatch(customerDetailsVisibleReducer());
 
             MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
@@ -80,11 +83,20 @@ export const ScanCamera: React.FC = () => {
                     style={styles.preview}
                     source={{ uri: "data:image/jpg;base64," + photo.base64 }}
                 />
-                <Button title="Share" onPress={sharePic} />
 
-                <Button title="Save" onPress={savePhoto} />
+                <View style={styles.imageBtnContainer}>
+                    <Button
+                        icon="delete"
+                        mode="contained-tonal"
+                        onPress={() => setPhoto(undefined)}
+                    >
+                        Discard
+                    </Button>
 
-                <Button title="Discard" onPress={() => setPhoto(undefined)} />
+                    <Button icon="file" mode="contained" onPress={savePhoto}>
+                        Save
+                    </Button>
+                </View>
             </View>
         );
     }
@@ -96,7 +108,7 @@ export const ScanCamera: React.FC = () => {
                 <Text style={{ textAlign: "center" }}>
                     We need your permission to show the camera
                 </Text>
-                <Button onPress={requestPermission} title="grant permission" />
+                <Button onPress={requestPermission}>Grant permision</Button>
             </View>
         );
     }
@@ -179,5 +191,13 @@ const styles = StyleSheet.create({
     preview: {
         alignSelf: "stretch",
         flex: 1,
+    },
+    imageBtnContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        paddingBottom: 20,
+        position: "absolute",
+        bottom: 0,
+        width: "100%",
     },
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Modal, View } from "react-native";
+import { StyleSheet, Modal, View, ScrollView } from "react-native";
 import Screen from "../../Layouts/Screen";
 import Color from "../../Components/Color";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ import { ScanCamera } from "./ScanCamera";
 import { Body, HeadingS } from "../../Components/Typography";
 import { getUserProfile } from "../../Api/Services/Backend/Profile";
 import { Customer } from "./Customer";
+import { ICustomer } from "../../Redux/Features/Customer/CustomerDetailsSlice";
 
 const Home: React.FC = () => {
     const dispatch = useDispatch();
@@ -50,6 +51,10 @@ const Home: React.FC = () => {
     const handleScanVisible = (): void => {
         dispatch(scanCustomerVisibleReducer());
     };
+
+    const customers = useSelector((state: RootState) => {
+        return state.customers.customers;
+    });
 
     const displayGreeting = (): string => {
         const currentTime = new Date();
@@ -101,7 +106,27 @@ const Home: React.FC = () => {
                 />
 
                 <View style={styles.container}>
-                    <Customer />
+                    <ScrollView
+                        contentContainerStyle={styles.contentContainer}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        {customers.map((customer: ICustomer, index: number) => (
+                            <Customer
+                                name={customer.name}
+                                chest={customer.chest}
+                                waist={customer.waist}
+                                hips={customer.hips}
+                                shoulder={customer.shoulder}
+                                neck={customer.neck}
+                                arm={customer.arm}
+                                bicep={customer.bicep}
+                                mobile={customer.mobile}
+                                gender={customer.gender}
+                                key={index}
+                                index={index}
+                            />
+                        ))}
+                    </ScrollView>
                 </View>
 
                 <FAB onPress={handleScanVisible}>
@@ -154,7 +179,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     contentContainer: {
-        width: "100%",
+        // width: "100%"
+        paddingBottom: 40,
     },
     detailContainer: {
         // flexDirection: "row",

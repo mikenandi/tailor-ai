@@ -15,12 +15,13 @@ const ModalSlice = createSlice({
     initialState,
     reducers: {
         scanCustomerVisibleReducer: (state) => {
-            state.scanCustomerVisible =
-                !state.scanCustomerVisible;
+            state.scanCustomerVisible = !state.scanCustomerVisible;
         },
         customerDetailsVisibleReducer: (state) => {
-            state.customerDetailsVisible =
-                !state.customerDetailsVisible;
+            state.customerDetailsVisible = !state.customerDetailsVisible;
+        },
+        hideCustomerModalsReducer: (state) => {
+            Object.assign(state, initialState);
         },
     },
 });
@@ -28,6 +29,7 @@ const ModalSlice = createSlice({
 export const {
     scanCustomerVisibleReducer,
     customerDetailsVisibleReducer,
+    hideCustomerModalsReducer,
 } = ModalSlice.actions;
 
 export default ModalSlice.reducer;

@@ -6,6 +6,7 @@ import CodeInputSlice from "./Components/CodeInputSlice";
 import ProfileModal from "./Features/Profile/ProfileModal";
 import LogoutModalSlice from "./Features/Logout/LogoutModalSlice";
 import CustomerModalSlice from "./Features/Customer/CustomerModalSlice";
+import CustomerDetailsSlice from "./Features/Customer/CustomerDetailsSlice";
 
 export const store = configureStore({
     reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
         profileModal: ProfileModal,
         logoutModal: LogoutModalSlice,
         scanCustomerModal: CustomerModalSlice,
+        customers: CustomerDetailsSlice,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

@@ -12,10 +12,18 @@ import {
 import { updateProfile } from "../../Api/Services/Backend/Profile";
 import Loader from "../../Components/Loader";
 import { TextInput } from "@react-native-material/core";
-import { customerDetailsVisibleReducer } from "../../Redux/Features/Customer/CustomerModalSlice";
+import {
+    customerDetailsVisibleReducer,
+    hideCustomerModalsReducer,
+} from "../../Redux/Features/Customer/CustomerModalSlice";
 import { RadioButton, Button } from "react-native-paper";
 import { Body } from "../../Components/Typography";
 import Color from "../../Components/Color";
+import {
+    saveCustomerReducer,
+    saveMeasurementsReducer,
+} from "../../Redux/Features/Customer/CustomerDetailsSlice";
+import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
 
 const ScanCustomer: React.FC = () => {
     const dispatch = useDispatch();
@@ -23,7 +31,11 @@ const ScanCustomer: React.FC = () => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [selectedGender, setSelectedGender] = React.useState<string>("");
 
-    const { name, email, authToken } = useSelector((state: RootState) => {
+    const customer = useSelector((state: RootState) => {
+        return state.customers.customer;
+    });
+
+    const { email, authToken } = useSelector((state: RootState) => {
         return state.auth;
     });
 
@@ -33,21 +45,6 @@ const ScanCustomer: React.FC = () => {
 
     const handleBack = (): void => {
         dispatch(customerDetailsVisibleReducer());
-    };
-
-    const handleEdit = async (): Promise<void> => {
-        setIsLoading(true);
-        let response = await updateProfile(
-            {
-                name,
-                email,
-            },
-            authToken
-        );
-
-        setIsLoading(false);
-
-        handleBack();
     };
 
     const handlePassword = (password: string): void => {
@@ -62,6 +59,23 @@ const ScanCustomer: React.FC = () => {
 
     const handleEmail = (email: string): void => {
         dispatch(emailReducer(email));
+    };
+
+    const handleSave = () => {
+        if (!customer.name || !customer.mobile || !customer.gender) {
+            dispatch(errorMsg("Fill all fields before submiting"));
+
+            return;
+        }
+
+        dispatch(saveCustomerReducer());
+        dispatch(hideCustomerModalsReducer());
+
+        return;
+    };
+
+    const handleChange = (name: string, value: string) => {
+        dispatch(saveMeasurementsReducer({ name, value }));
     };
 
     if (isLoading) {
@@ -85,15 +99,21 @@ const ScanCustomer: React.FC = () => {
                         label="Customer Name"
                         variant="standard"
                         style={styles.textInput}
-                        value={name}
-                        onChangeText={handleName}
+                        value={customer?.name}
+                        onChangeText={(value) => {
+                            handleChange("name", value);
+                        }}
                     />
 
                     <TextInput
                         label="Mobile"
                         variant="standard"
                         style={styles.textInput}
-                        onChangeText={handlePhoneNumber}
+                        keyboardType="numeric"
+                        value={customer?.mobile}
+                        onChangeText={(value) => {
+                            handleChange("mobile", value);
+                        }}
                     />
 
                     <View style={styles.genderContainer}>
@@ -101,8 +121,10 @@ const ScanCustomer: React.FC = () => {
 
                         <View>
                             <RadioButton.Group
-                                onValueChange={handleGenderChange}
-                                value={selectedGender}
+                                onValueChange={(value) => {
+                                    handleChange("gender", value);
+                                }}
+                                value={customer?.gender}
                             >
                                 <RadioButton.Item label="Male" value="male" />
                                 <RadioButton.Item
@@ -116,7 +138,7 @@ const ScanCustomer: React.FC = () => {
                     <Button
                         icon="file"
                         mode="contained"
-                        onPress={() => {}}
+                        onPress={handleSave}
                         style={styles.scanButton}
                         buttonColor={Color.primary}
                     >
