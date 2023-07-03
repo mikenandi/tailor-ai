@@ -4,18 +4,20 @@ export interface ICustomer {
     name: string;
     mobile: string;
     gender: string;
-    chest: string;
-    waist: string;
-    hips: string;
+    height: string;
+    chest: String;
     shoulder: string;
-    neck: string;
     arm: string;
-    bicep: string;
+    leg: string;
+    waist: string;
+    waistToShoulder: string;
+    tailorId: string;
 }
 
 interface CustomerDetailsState {
     customer: ICustomer;
     customers: ICustomer[];
+    reload: boolean;
 }
 
 const initialState: CustomerDetailsState = {
@@ -24,14 +26,16 @@ const initialState: CustomerDetailsState = {
         name: "",
         mobile: "",
         gender: "",
-        chest: "12 Inch",
-        waist: "12 Inch",
-        hips: "12 Inch",
-        shoulder: "12 Inch",
-        neck: "12 Inch",
-        arm: "12 Inch",
-        bicep: "12 Inch",
+        height: "",
+        chest: "",
+        shoulder: "",
+        arm: "",
+        leg: "",
+        waist: "",
+        waistToShoulder: "",
+        tailorId: "",
     },
+    reload: false,
 };
 
 const CustomerDetailsSlice = createSlice({
@@ -57,6 +61,29 @@ const CustomerDetailsSlice = createSlice({
                 (_, index) => index !== actions.payload
             );
         },
+        savePredictions: (
+            state,
+            actions: PayloadAction<{
+                arm_length: string;
+                leg_length: string;
+                shoulder_width: string;
+                waist: string;
+                waist_to_shoulder_length: string;
+            }>
+        ) => {
+            state.customer.shoulder = actions.payload.shoulder_width;
+            state.customer.arm = actions.payload.arm_length;
+            state.customer.leg = actions.payload.leg_length;
+            state.customer.waist = actions.payload.waist;
+            state.customer.waistToShoulder =
+                actions.payload.waist_to_shoulder_length;
+        },
+        saveCustomersReducer: (state, actions: PayloadAction<ICustomer[]>) => {
+            state.customers = actions.payload;
+        },
+        reloadReducer: (state) => {
+            state.reload = !state.reload;
+        },
     },
 });
 
@@ -64,6 +91,9 @@ export const {
     saveMeasurementsReducer,
     saveCustomerReducer,
     deleteCustomerReducer,
+    savePredictions,
+    saveCustomersReducer,
+    reloadReducer,
 } = CustomerDetailsSlice.actions;
 
 export default CustomerDetailsSlice.reducer;

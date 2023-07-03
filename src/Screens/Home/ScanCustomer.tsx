@@ -1,77 +1,100 @@
 import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, View } from "react-native";
 import { ModalScreen } from "../../Layouts/ModalScreen";
 import { ModalNavBack } from "../../Components/ModalNavBack";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../Redux";
-import {
-    emailReducer,
-    nameReducer,
-    passwordReducer,
-} from "../../Redux/Features/Auth/AuthSlice";
-import { updateProfile } from "../../Api/Services/Backend/Profile";
-import Loader from "../../Components/Loader";
 import { TextInput } from "@react-native-material/core";
 import {
     customerDetailsVisibleReducer,
     hideCustomerModalsReducer,
+    scanCustomerVisibleReducer,
 } from "../../Redux/Features/Customer/CustomerModalSlice";
-import { RadioButton, Button } from "react-native-paper";
+import { RadioButton, Button, Text } from "react-native-paper";
 import { Body } from "../../Components/Typography";
 import Color from "../../Components/Color";
 import {
+    reloadReducer,
     saveCustomerReducer,
     saveMeasurementsReducer,
 } from "../../Redux/Features/Customer/CustomerDetailsSlice";
 import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
+import { ScanCamera } from "./ScanCamera";
+import { postCustomers } from "../../Api/Services/Backend/Customer";
+import Loader from "../../Components/Loader";
 
 const ScanCustomer: React.FC = () => {
     const dispatch = useDispatch();
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
-    const [selectedGender, setSelectedGender] = React.useState<string>("");
 
     const customer = useSelector((state: RootState) => {
         return state.customers.customer;
     });
 
-    const { email, authToken } = useSelector((state: RootState) => {
-        return state.auth;
+    const { authToken } = useSelector((state: RootState) => state.auth);
+
+    const visible: boolean = useSelector((state: RootState) => {
+        return state.scanCustomerModal.scanCustomerVisible;
     });
 
-    const handleGenderChange = (gender: string): void => {
-        setSelectedGender(gender);
-    };
+    // console.log(customer);
 
     const handleBack = (): void => {
         dispatch(customerDetailsVisibleReducer());
     };
 
-    const handlePassword = (password: string): void => {
-        dispatch(passwordReducer(password));
-    };
-
-    const handleName = (name: string): void => {
-        dispatch(nameReducer(name));
-    };
-
-    const handlePhoneNumber = (phonenumber: string): void => {};
-
-    const handleEmail = (email: string): void => {
-        dispatch(emailReducer(email));
-    };
-
-    const handleSave = () => {
-        if (!customer.name || !customer.mobile || !customer.gender) {
+    const handleSave = async (): Promise<void> => {
+        if (
+            !customer.name ||
+            !customer.mobile ||
+            !customer.gender ||
+            !customer.height
+        ) {
             dispatch(errorMsg("Fill all fields before submiting"));
 
             return;
         }
 
-        dispatch(saveCustomerReducer());
-        dispatch(hideCustomerModalsReducer());
+        setIsLoading(true);
 
-        return;
+        const inputs = {
+            name: customer.name,
+            mobile: customer.mobile,
+            gender: customer.gender,
+            height: Number(customer.height),
+            chest: !customer.chest ? 0 : Number(customer.chest),
+            shoulder: Number(customer.shoulder.replace(/ cm/gi, "")),
+            arm: Number(customer.arm.replace(/ cm/gi, "")),
+            leg: Number(customer.leg.replace(/ cm/gi, "")),
+            waist: Number(customer.waist),
+            waistToShoulder: Number(
+                customer.waistToShoulder.replace(/ cm/gi, "")
+            ),
+        };
+
+        await postCustomers(authToken, inputs);
+
+        // dispatch(saveCustomerReducer());
+        dispatch(hideCustomerModalsReducer());
+        dispatch(reloadReducer());
+
+        setIsLoading(false);
+    };
+
+    const handleOpenCamera = (): void => {
+        if (
+            !customer.name ||
+            !customer.mobile ||
+            !customer.gender ||
+            !customer.height
+        ) {
+            dispatch(errorMsg("Fill all Details before takiing picture"));
+
+            return;
+        }
+
+        dispatch(scanCustomerVisibleReducer());
     };
 
     const handleChange = (name: string, value: string) => {
@@ -96,7 +119,7 @@ const ScanCustomer: React.FC = () => {
 
                 <ScrollView contentContainerStyle={styles.contentContainer}>
                     <TextInput
-                        label="Customer Name"
+                        label="Name"
                         variant="standard"
                         style={styles.textInput}
                         value={customer?.name}
@@ -110,9 +133,22 @@ const ScanCustomer: React.FC = () => {
                         variant="standard"
                         style={styles.textInput}
                         keyboardType="numeric"
+                        maxLength={10}
                         value={customer?.mobile}
                         onChangeText={(value) => {
                             handleChange("mobile", value);
+                        }}
+                    />
+
+                    <TextInput
+                        label="Height in cm"
+                        variant="standard"
+                        maxLength={3}
+                        style={styles.textInput}
+                        keyboardType="numeric"
+                        value={customer?.height}
+                        onChangeText={(value) => {
+                            handleChange("height", value);
                         }}
                     />
 
@@ -135,6 +171,46 @@ const ScanCustomer: React.FC = () => {
                         </View>
                     </View>
 
+                    <View style={styles.imageContainer}>
+                        <Text variant="bodyLarge">Take photo</Text>
+
+                        <Button
+                            icon="camera"
+                            mode="outlined"
+                            onPress={handleOpenCamera}
+                            // style={styles.scanButton}
+                            // buttonColor={Color.lightgray}
+                        >
+                            Camera
+                        </Button>
+                    </View>
+
+                    {customer.shoulder && (
+                        <View style={styles.resultsMeasurementContainer}>
+                            {customer.chest && (
+                                <Text variant="bodyMedium">
+                                    Chest: {customer.chest}
+                                </Text>
+                            )}
+
+                            <Text variant="bodyMedium">
+                                shoulder: {customer.shoulder}
+                            </Text>
+                            <Text variant="bodyMedium">
+                                arm: {customer.arm}
+                            </Text>
+                            <Text variant="bodyMedium">
+                                leg: {customer.leg}
+                            </Text>
+                            <Text variant="bodyMedium">
+                                waist: {customer.waist} cm
+                            </Text>
+                            <Text variant="bodyMedium">
+                                waist to shoulder: {customer.waistToShoulder}
+                            </Text>
+                        </View>
+                    )}
+
                     <Button
                         icon="file"
                         mode="contained"
@@ -144,10 +220,12 @@ const ScanCustomer: React.FC = () => {
                     >
                         Save Measurements
                     </Button>
-
-                    {/* <ButtonL action="UPDATE" onPress={handleEdit} /> */}
                 </ScrollView>
             </ModalScreen>
+
+            <Modal visible={visible}>
+                <ScanCamera />
+            </Modal>
         </>
     );
 };
@@ -168,6 +246,20 @@ const styles = StyleSheet.create({
     scanButton: {
         width: "80%",
         height: 40,
+        marginTop: 20,
+    },
+    imageContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "80%",
+        marginTop: 10,
+    },
+    resultsMeasurementContainer: {
+        width: "80%",
+        backgroundColor: Color.lightgray,
+        marginTop: 15,
+        padding: 10,
     },
 });
 

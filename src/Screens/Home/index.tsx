@@ -12,21 +12,41 @@ import {
     logOutReducer,
     userProfileReducer,
 } from "../../Redux/Features/Auth/AuthSlice";
-import { scanCustomerVisibleReducer } from "../../Redux/Features/Customer/CustomerModalSlice";
-import { ScanCamera } from "./ScanCamera";
-import { Body, HeadingS } from "../../Components/Typography";
+import { customerDetailsVisibleReducer } from "../../Redux/Features/Customer/CustomerModalSlice";
+import { ScanCustomer } from "./ScanCustomer";
 import { getUserProfile } from "../../Api/Services/Backend/Profile";
 import { Customer } from "./Customer";
-import { ICustomer } from "../../Redux/Features/Customer/CustomerDetailsSlice";
+import { getCustomers } from "../../Api/Services/Backend/Customer";
+import Loader from "../../Components/Loader";
+
+interface ICustomerData {
+    id: string;
+    name: string;
+    mobile: string;
+    gender: string;
+    height: number;
+    chest: number;
+    shoulder: number;
+    arm: number;
+    leg: number;
+    waist: number;
+    waistToShoulder: number;
+    tailorId: string;
+    createdAt: string;
+    updatedAt: string;
+}
 
 const Home: React.FC = () => {
     const dispatch = useDispatch();
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [customersData, setCustomersData] = React.useState([]);
 
     const { authToken, name } = useSelector((state: RootState) => {
         return state.auth;
     });
+
+    const reload = useSelector((state: RootState) => state.customers.reload);
 
     const fetchProfile = async (authToken: string) => {
         let response = await getUserProfile(authToken);
@@ -44,12 +64,20 @@ const Home: React.FC = () => {
         return;
     };
 
+    const fetchCustomers = async (authToken: string) => {
+        let response = await getCustomers(authToken);
+
+        if (response.length > 0) {
+            setCustomersData(response);
+        }
+    };
+
     const visible: boolean = useSelector((state: RootState) => {
-        return state.scanCustomerModal.scanCustomerVisible;
+        return state.scanCustomerModal.customerDetailsVisible;
     });
 
     const handleScanVisible = (): void => {
-        dispatch(scanCustomerVisibleReducer());
+        dispatch(customerDetailsVisibleReducer());
     };
 
     const customers = useSelector((state: RootState) => {
@@ -64,7 +92,7 @@ const Home: React.FC = () => {
 
         if (currentHour < 12) {
             greeting = "Good morning";
-        } else if (currentHour < 18) {
+        } else if (currentHour < 16) {
             greeting = "Good afternoon";
         } else {
             greeting = "Good evening";
@@ -87,16 +115,19 @@ const Home: React.FC = () => {
     };
 
     React.useEffect(() => {
+        setIsLoading(true);
         fetchProfile(authToken);
-    }, []);
+        fetchCustomers(authToken);
+        setIsLoading(false);
+    }, [reload]);
 
-    // if (isLoading) {
-    // 	return (
-    // 		<>
-    // 			<Loader />
-    // 		</>
-    // 	);
-    // }
+    if (isLoading) {
+        return (
+            <>
+                <Loader />
+            </>
+        );
+    }
 
     return (
         <>
@@ -110,22 +141,22 @@ const Home: React.FC = () => {
                         contentContainerStyle={styles.contentContainer}
                         showsVerticalScrollIndicator={false}
                     >
-                        {customers.map((customer: ICustomer, index: number) => (
-                            <Customer
-                                name={customer.name}
-                                chest={customer.chest}
-                                waist={customer.waist}
-                                hips={customer.hips}
-                                shoulder={customer.shoulder}
-                                neck={customer.neck}
-                                arm={customer.arm}
-                                bicep={customer.bicep}
-                                mobile={customer.mobile}
-                                gender={customer.gender}
-                                key={index}
-                                index={index}
-                            />
-                        ))}
+                        {customersData.map(
+                            (customer: ICustomerData, index: number) => (
+                                <Customer
+                                    name={customer.name}
+                                    waist={customer.waist}
+                                    shoulder={customer.shoulder}
+                                    arm={customer.arm}
+                                    leg={customer.leg}
+                                    mobile={customer.mobile}
+                                    gender={customer.gender}
+                                    key={index}
+                                    id={customer.id}
+                                    index={index}
+                                />
+                            )
+                        )}
                     </ScrollView>
                 </View>
 
@@ -135,8 +166,8 @@ const Home: React.FC = () => {
             </Screen>
 
             <Modal visible={visible} animationType="fade">
-                {/* <ScanCustomer /> */}
-                <ScanCamera />
+                <ScanCustomer />
+                {/* <ScanCamera /> */}
             </Modal>
         </>
     );

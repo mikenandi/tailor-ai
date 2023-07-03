@@ -4,6 +4,7 @@ import { HeadingS } from "../Components/Typography";
 import { StyleSheet, View } from "react-native";
 import { useDispatch } from "react-redux";
 import { RootState } from "../Redux";
+import { Text } from "react-native-paper";
 
 interface TopbarProps {
     title: string;
@@ -15,7 +16,9 @@ const Topbar: React.FC<TopbarProps> = (props) => {
     return (
         <>
             <View style={styles.container}>
-                <HeadingS style={styles.logoText}>{props.title}</HeadingS>
+                <Text variant="titleMedium" style={styles.logoText}>
+                    {props.title}
+                </Text>
             </View>
         </>
     );
@@ -34,8 +37,8 @@ const styles = StyleSheet.create({
     },
     logoText: {
         color: Color.white,
-        fontWeight: "bold",
-        fontFamily: "poppins",
+        // fontWeight: "bold",
+        // fontFamily: "poppins",
         // fontSize: ,
     },
     icon: {},

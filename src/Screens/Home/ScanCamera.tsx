@@ -7,23 +7,31 @@ import {
 } from "../../Redux/Features/Customer/CustomerModalSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { ModalNavBack } from "../../Components/ModalNavBack";
-import { ScanCustomer } from "./ScanCustomer";
+// import { ScanCustomer } from "./ScanCustomer";
 import { RootState } from "../../Redux";
 import * as MediaLibrary from "expo-media-library";
 import { shareAsync } from "expo-sharing";
 import { Image } from "react-native";
 import Color from "../../Components/Color";
 import { Button } from "react-native-paper";
+// import { predictMeasurements } from "../../Api/Services/TailorAi/predict";
+import axios from "axios";
+import { savePredictions } from "../../Redux/Features/Customer/CustomerDetailsSlice";
 
 export const ScanCamera: React.FC = () => {
     let camera: Camera;
     const dispatch = useDispatch();
     const [type, setType] = useState(CameraType.back);
+    const [isLoading, setIsLoading] = useState(false);
     const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
         useState<boolean>(false);
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [photo, setPhoto] = useState<CameraCapturedPicture | undefined>();
     const cameraRef = useRef<Camera>(null);
+
+    const customer = useSelector(
+        (state: RootState) => state.customers.customer
+    );
 
     const visible: boolean = useSelector((state: RootState) => {
         return state.scanCustomerModal.customerDetailsVisible;
@@ -31,6 +39,33 @@ export const ScanCamera: React.FC = () => {
 
     const handleBack = (): void => {
         dispatch(scanCustomerVisibleReducer());
+    };
+
+    const predictMeasurements = async (height: number, photoUri: string) => {
+        try {
+            const imageFile = {
+                uri: photoUri,
+                name: "customer_image.jpg",
+                type: "image/jpg",
+            };
+
+            const formData = new FormData();
+            formData.append("file", imageFile);
+
+            const response = await axios.post(
+                `https://fast-tailor-production.up.railway.app/api/v1/predict-measurements?height=${height}`,
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            return response.data;
+        } catch (error: any) {
+            return error.response.data;
+        }
     };
 
     if (!permission) {
@@ -53,8 +88,6 @@ export const ScanCamera: React.FC = () => {
         setPhoto(newPhoto);
     };
 
-    // console.log(photo?.uri);
-
     if (photo && "uri" in photo) {
         let sharePic = () => {
             shareAsync(photo?.uri).then(() => {
@@ -70,11 +103,22 @@ export const ScanCamera: React.FC = () => {
                 mediaLibraryPermission.status === "granted"
             );
 
-            dispatch(customerDetailsVisibleReducer());
+            setIsLoading(true);
+
+            let response = await predictMeasurements(
+                Number(customer.height),
+                photo.uri
+            );
+
+            dispatch(savePredictions({ ...response }));
 
             MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
                 setPhoto(undefined);
             });
+
+            dispatch(scanCustomerVisibleReducer());
+
+            setIsLoading(false);
         };
 
         return (
@@ -93,8 +137,13 @@ export const ScanCamera: React.FC = () => {
                         Discard
                     </Button>
 
-                    <Button icon="file" mode="contained" onPress={savePhoto}>
-                        Save
+                    <Button
+                        icon="file"
+                        mode="contained"
+                        onPress={savePhoto}
+                        loading={isLoading}
+                    >
+                        Done
                     </Button>
                 </View>
             </View>
@@ -141,15 +190,15 @@ export const ScanCamera: React.FC = () => {
                             style={styles.button}
                             onPress={takePic}
                         >
-                            <Text style={styles.text}>Scan measurement</Text>
+                            <Text style={styles.text}>Take photo</Text>
                         </TouchableOpacity>
                     </View>
                 </Camera>
             </View>
 
-            <Modal visible={visible} animationType="fade">
+            {/* <Modal visible={visible} animationType="fade">
                 <ScanCustomer />
-            </Modal>
+            </Modal> */}
         </>
     );
 };
