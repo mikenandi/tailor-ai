@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { StyleSheet, Modal, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Color from "../../Components/Color";
 import { useDispatch, useSelector } from "react-redux";
-import { Body, Caption, HeadingS } from "../../Components/Typography";
+import { Body } from "../../Components/Typography";
 import { reloadReducer } from "../../Redux/Features/Customer/CustomerDetailsSlice";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { deleteCustomer } from "../../Api/Services/Backend/Customer";
 import { RootState } from "../../Redux";
 import { Button, Text } from "react-native-paper";
@@ -16,9 +15,13 @@ export const Customer: React.FC<any> = (props) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleDelete = async () => {
-        await deleteCustomer(props.id, authToken);
+        setIsLoading(true);
+
+        let response = await deleteCustomer(props.id, authToken);
 
         dispatch(reloadReducer());
+
+        setIsLoading(false);
     };
 
     return (
@@ -42,59 +45,37 @@ export const Customer: React.FC<any> = (props) => {
                     </View>
 
                     <View style={styles.dataContainer}>
-                        <Body style={styles.detailText}>Chest measurement</Body>
-
-                        <Body style={styles.detail}>{props.chest}</Body>
-                    </View>
-
-                    <View style={styles.dataContainer}>
                         <Body style={styles.detailText}>
                             Shoulder measurement
                         </Body>
 
-                        <Body style={styles.detail}>{props.shoulder}</Body>
+                        <Body style={styles.detail}>{props.shoulder} inch</Body>
                     </View>
 
                     <View style={styles.dataContainer}>
                         <Body style={styles.detailText}>Waist measurement</Body>
 
-                        <Body style={styles.detail}>{props.waist} cm</Body>
+                        <Body style={styles.detail}>{props.waist} inch</Body>
                     </View>
 
                     <View style={styles.dataContainer}>
                         <Body style={styles.detailText}>Leg from waist</Body>
 
-                        <Body style={styles.detail}>{props.leg}</Body>
+                        <Body style={styles.detail}>{props.leg} inch</Body>
                     </View>
 
-                    {/* <View style={styles.dataContainer}>
-                        <Body style={styles.detailText}>Neck measurement</Body>
+                    <View style={styles.dataContainer}>
+                        <Body style={styles.detailText}>Leg </Body>
 
-                        <Body style={styles.detail}>{props.neck}</Body>
-                    </View> */}
+                        <Body style={styles.detail}>{props.leg} inch</Body>
+                    </View>
 
                     <View style={styles.dataContainer}>
                         <Body style={styles.detailText}>Arm length</Body>
 
-                        <Body style={styles.detail}>{props.arm}</Body>
+                        <Body style={styles.detail}>{props.arm} inch</Body>
                     </View>
 
-                    {/* <View style={styles.dataContainer}>
-                        <Body style={styles.detailText}>Bicep measurement</Body>
-
-                        <Body style={styles.detail}>{props.bicep}</Body>
-                    </View> */}
-
-                    {/* <TouchableOpacity
-                        activeOpacity={0.85}
-                        onPress={handleDelete}
-                    >
-                        <MaterialCommunityIcons
-                            name="delete-circle-outline"
-                            size={32}
-                            color="red"
-                        />
-                    </TouchableOpacity> */}
                     <View>
                         <Button
                             mode="elevated"

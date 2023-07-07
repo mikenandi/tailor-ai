@@ -13,16 +13,20 @@ import * as MediaLibrary from "expo-media-library";
 import { shareAsync } from "expo-sharing";
 import { Image } from "react-native";
 import Color from "../../Components/Color";
-import { Button } from "react-native-paper";
+import { Button, Snackbar } from "react-native-paper";
 // import { predictMeasurements } from "../../Api/Services/TailorAi/predict";
 import axios from "axios";
 import { savePredictions } from "../../Redux/Features/Customer/CustomerDetailsSlice";
+import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
+import { ErrorMsg } from "../../Components/ErrorMsg";
 
 export const ScanCamera: React.FC = () => {
     let camera: Camera;
     const dispatch = useDispatch();
     const [type, setType] = useState(CameraType.back);
     const [isLoading, setIsLoading] = useState(false);
+    const [snackVibible, setVisible] = useState(false);
+    const [snackError, setSnackError] = useState("");
     const [hasMediaLibraryPermission, setHasMediaLibraryPermission] =
         useState<boolean>(false);
     const [permission, requestPermission] = Camera.useCameraPermissions();
@@ -110,16 +114,26 @@ export const ScanCamera: React.FC = () => {
                 photo.uri
             );
 
-            dispatch(savePredictions({ ...response }));
+            if (response.status_code === 400) {
+                setVisible(!snackVibible);
 
-            MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
-                setPhoto(undefined);
-            });
+                setSnackError(
+                    "uploaded is not clear or does not contain human"
+                );
+            } else {
+                dispatch(savePredictions({ ...response }));
 
-            dispatch(scanCustomerVisibleReducer());
+                MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
+                    setPhoto(undefined);
+                });
+
+                dispatch(scanCustomerVisibleReducer());
+            }
 
             setIsLoading(false);
         };
+
+        const onDismissSnackBar = () => setVisible(false);
 
         return (
             <View style={styles.container}>
@@ -146,6 +160,19 @@ export const ScanCamera: React.FC = () => {
                         Done
                     </Button>
                 </View>
+
+                <Snackbar
+                    visible={snackVibible}
+                    onDismiss={onDismissSnackBar}
+                    action={{
+                        label: "Dismis",
+                        onPress: () => {
+                            setVisible(!snackVibible);
+                        },
+                    }}
+                >
+                    {snackError}
+                </Snackbar>
             </View>
         );
     }
@@ -207,6 +234,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "center",
+        // alignItems: "center",
     },
     camera: {
         flex: 1,

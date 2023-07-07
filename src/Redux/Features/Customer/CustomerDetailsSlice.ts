@@ -14,9 +14,28 @@ export interface ICustomer {
     tailorId: string;
 }
 
+interface ICustomerData {
+    id: string;
+
+    name: string;
+    mobile: string;
+    gender: string;
+    height: number;
+    chest: String;
+    shoulder: number;
+    arm: number;
+    leg: number;
+    waist: number;
+    waistToShoulder: number;
+    tailorId: string;
+
+    createdAt: string;
+    updatedAt: string;
+}
+
 interface CustomerDetailsState {
     customer: ICustomer;
-    customers: ICustomer[];
+    customers: ICustomerData[];
     reload: boolean;
 }
 
@@ -52,14 +71,15 @@ const CustomerDetailsSlice = createSlice({
             };
         },
         saveCustomerReducer: (state) => {
-            state.customers.push({ ...state.customer });
+            // state.customers.push({ ...state.customer });
+            // Object.assign(state.customer, initialState.customer);
+        },
+        deleteCustomerReducer: (state) => {
+            // state.customers = state.customers.filter(
+            //     (_, index) => index !== actions.payload
+            // );
 
             Object.assign(state.customer, initialState.customer);
-        },
-        deleteCustomerReducer: (state, actions: PayloadAction<number>) => {
-            state.customers = state.customers.filter(
-                (_, index) => index !== actions.payload
-            );
         },
         savePredictions: (
             state,
@@ -78,7 +98,10 @@ const CustomerDetailsSlice = createSlice({
             state.customer.waistToShoulder =
                 actions.payload.waist_to_shoulder_length;
         },
-        saveCustomersReducer: (state, actions: PayloadAction<ICustomer[]>) => {
+        saveCustomersReducer: (
+            state,
+            actions: PayloadAction<ICustomerData[]>
+        ) => {
             state.customers = actions.payload;
         },
         reloadReducer: (state) => {

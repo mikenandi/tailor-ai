@@ -69,6 +69,8 @@ const Home: React.FC = () => {
 
         if (response.length > 0) {
             setCustomersData(response);
+        } else {
+            setCustomersData([]);
         }
     };
 
@@ -108,17 +110,9 @@ const Home: React.FC = () => {
         return name.trim().split(" ")[0];
     };
 
-    const handleLogout = async (): Promise<void> => {
-        await SecureStorage.deleteItemAsync("authToken");
-
-        dispatch(logOutReducer());
-    };
-
     React.useEffect(() => {
-        setIsLoading(true);
         fetchProfile(authToken);
         fetchCustomers(authToken);
-        setIsLoading(false);
     }, [reload]);
 
     if (isLoading) {

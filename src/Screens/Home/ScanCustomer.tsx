@@ -14,6 +14,7 @@ import { RadioButton, Button, Text } from "react-native-paper";
 import { Body } from "../../Components/Typography";
 import Color from "../../Components/Color";
 import {
+    deleteCustomerReducer,
     reloadReducer,
     saveCustomerReducer,
     saveMeasurementsReducer,
@@ -64,18 +65,16 @@ const ScanCustomer: React.FC = () => {
             gender: customer.gender,
             height: Number(customer.height),
             chest: !customer.chest ? 0 : Number(customer.chest),
-            shoulder: Number(customer.shoulder.replace(/ cm/gi, "")),
-            arm: Number(customer.arm.replace(/ cm/gi, "")),
-            leg: Number(customer.leg.replace(/ cm/gi, "")),
+            shoulder: Number(customer.shoulder),
+            arm: Number(customer.arm),
+            leg: Number(customer.leg),
             waist: Number(customer.waist),
-            waistToShoulder: Number(
-                customer.waistToShoulder.replace(/ cm/gi, "")
-            ),
+            waistToShoulder: Number(customer.waistToShoulder),
         };
 
-        await postCustomers(authToken, inputs);
+        let response = await postCustomers(authToken, inputs);
 
-        // dispatch(saveCustomerReducer());
+        dispatch(deleteCustomerReducer());
         dispatch(hideCustomerModalsReducer());
         dispatch(reloadReducer());
 
@@ -189,24 +188,25 @@ const ScanCustomer: React.FC = () => {
                         <View style={styles.resultsMeasurementContainer}>
                             {customer.chest && (
                                 <Text variant="bodyMedium">
-                                    Chest: {customer.chest}
+                                    Leg: {customer.chest} Inch
                                 </Text>
                             )}
 
                             <Text variant="bodyMedium">
-                                shoulder: {customer.shoulder}
+                                shoulder: {customer.shoulder} Inch
                             </Text>
                             <Text variant="bodyMedium">
                                 arm: {customer.arm}
                             </Text>
                             <Text variant="bodyMedium">
-                                leg: {customer.leg}
+                                leg: {customer.leg} Inch
                             </Text>
                             <Text variant="bodyMedium">
-                                waist: {customer.waist} cm
+                                waist: {customer.waist} Inch
                             </Text>
                             <Text variant="bodyMedium">
-                                waist to shoulder: {customer.waistToShoulder}
+                                waist to shoulder: {customer.waistToShoulder}{" "}
+                                Inch
                             </Text>
                         </View>
                     )}
