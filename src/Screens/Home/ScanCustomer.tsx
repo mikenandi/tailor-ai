@@ -23,6 +23,7 @@ import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
 import { ScanCamera } from "./ScanCamera";
 import { postCustomers } from "../../Api/Services/Backend/Customer";
 import Loader from "../../Components/Loader";
+import { getMobileNumberOperator } from "../../Helpers/CheckphoneNumber";
 
 const ScanCustomer: React.FC = () => {
     const dispatch = useDispatch();
@@ -57,6 +58,14 @@ const ScanCustomer: React.FC = () => {
             return;
         }
 
+        if (
+            getMobileNumberOperator(customer.mobile) === null ||
+            customer.mobile.length !== 10
+        ) {
+            dispatch(errorMsg("Invalid phone number"));
+
+            return;
+        }
         setIsLoading(true);
 
         const inputs = {
@@ -89,6 +98,15 @@ const ScanCustomer: React.FC = () => {
             !customer.height
         ) {
             dispatch(errorMsg("Fill all Details before takiing picture"));
+
+            return;
+        }
+
+        if (
+            getMobileNumberOperator(customer.mobile) === null ||
+            customer.mobile.length !== 10
+        ) {
+            dispatch(errorMsg("Invalid phone number"));
 
             return;
         }

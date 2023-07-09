@@ -18,6 +18,7 @@ import Loader from "../../Components/Loader";
 import { TextInput } from "@react-native-material/core";
 import { errorMsg } from "../../Redux/Components/ErrorMsgSlice";
 import { ErrorMsg } from "../../Components/ErrorMsg";
+import { getMobileNumberOperator } from "../../Helpers/CheckphoneNumber";
 
 const EditProfile: React.FC = () => {
     const dispatch = useDispatch();
@@ -35,15 +36,16 @@ const EditProfile: React.FC = () => {
     };
 
     const handleEdit = async (): Promise<void> => {
-        setIsLoading(true);
-
-        if (phoneNumber.length !== 10) {
-            setIsLoading(false);
-
+        if (
+            getMobileNumberOperator(phoneNumber) === null ||
+            phoneNumber.length !== 10
+        ) {
             dispatch(errorMsg("Invalid phone number"));
 
             return;
         }
+
+        setIsLoading(true);
 
         let response = await updateProfile(
             {
@@ -102,6 +104,7 @@ const EditProfile: React.FC = () => {
                         variant="standard"
                         style={styles.textInput}
                         value={phoneNumber}
+                        maxLength={10}
                         keyboardType="number-pad"
                         onChangeText={handlePhoneNumber}
                     />
